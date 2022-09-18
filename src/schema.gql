@@ -1,0 +1,175 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Follow {
+  id: String!
+  followingUsersId: String
+  followerUsersId: String
+  follower_users: [User!]
+  following_users: [User!]
+}
+
+type Comment {
+  id: String!
+  userId: String
+  postId: String
+  replyTo: String
+  content: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  reply: [Comment!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Like {
+  id: String!
+  userId: String
+  postId: String
+  commentId: String
+}
+
+type Post {
+  id: String!
+  description: String
+  imageUrl: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  profileId: String!
+  comments: [Comment!]!
+  likes: Float!
+  profile: [Profile!]!
+}
+
+type Profile {
+  id: String!
+  displayName: String!
+  dob: String!
+  bio: String
+  user: User
+  userId: String!
+  posts: [Post!]
+}
+
+type Notification {
+  id: String!
+  conttent: String
+  userId: String
+  user: User
+}
+
+type User {
+  id: String!
+  email: String!
+  otp_code: String!
+  isComfirmEmail: Boolean!
+  otp_exprise: Float
+  isActive: Boolean!
+  profile: Profile
+  follower_users: [User!]!
+  following_users: [User!]!
+}
+
+type IJwtPayload {
+  id: String
+}
+
+type JwtPayload {
+  accessToken: String
+  refreshToken: String
+  payload: JwtPayload
+  userId: IJwtPayload
+  userInfo: User
+}
+
+type Query {
+  getAllUsers: [User!]!
+  findUserByEmail(email: String!): User!
+  getAllProfiles: [Profile!]!
+  findProfileByUser(userId: String!): Profile!
+  getAllPosts: [Post!]!
+  getAllNotis: [Notification!]!
+  getAllFollowInfo: [Follow!]!
+}
+
+type Mutation {
+  deactiveAccount: Boolean!
+  activeAccount: Boolean!
+  login(loginUserInput: LoginUserInput!): JwtPayload!
+  activeOtp(activeOtpInput: ActiveOtpInput!): Boolean!
+  signup(signupUserInput: SignupInput!): JwtPayload!
+  createProfile(createProfileInput: CreateProfileInput!): Profile!
+  createPost(createPostInput: CreatePostInput!): Post!
+  updatePost(updatePostInput: UpdatePostInput!): Post!
+  deletePost(id: String!): Boolean!
+  followUser(createFollowInput: CreateFollowInput!): Boolean!
+  unFollowUser(createFollowInput: CreateFollowInput!): Boolean!
+  commentOnPost(createCommentInput: CreateCommentInput!): Comment!
+  replyComment(replyCommentInput: ReplyCommentInput!): Comment!
+  updateComment(updateCommentInput: UpdateCommentInput!): Comment!
+  deleteComment(id: String!): Boolean!
+  likePost(postId: String!): Like!
+  unlikePost(postId: String!): Boolean!
+  likeComment(commentId: String!): Like!
+}
+
+input LoginUserInput {
+  email: String!
+  password: String!
+}
+
+input ActiveOtpInput {
+  email: String!
+  password: String!
+  otp_code: String!
+}
+
+input SignupInput {
+  email: String!
+  password: String!
+  displayName: String
+  DOB: DateTime
+  bio: String
+}
+
+input CreateProfileInput {
+  displayName: String!
+  dob: String!
+  bio: String
+}
+
+input CreatePostInput {
+  description: String
+  imageUrl: String
+}
+
+input UpdatePostInput {
+  description: String!
+  imageUrl: String
+  id: String!
+}
+
+input CreateFollowInput {
+  followingUsersId: String!
+}
+
+input CreateCommentInput {
+  postId: String!
+  content: String!
+}
+
+input ReplyCommentInput {
+  postId: String!
+  replyTo: String!
+  content: String!
+}
+
+input UpdateCommentInput {
+  postId: String
+  content: String!
+  id: String!
+}
