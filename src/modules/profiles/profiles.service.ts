@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProfileInput } from './dto/create-profile.input';
@@ -7,13 +7,17 @@ import { getUserIdFromRequest } from '../../utils/jwt.utils';
 import { Request } from 'express';
 import { UsersService } from '../users/users.service';
 import { NotFoundException } from '@nestjs/common/exceptions';
+import { PostsService } from '../posts/posts.service';
+import { Post } from '../../modules/posts/entities/post.entity';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectRepository(Profile)
     private readonly profilesRepository: Repository<Profile>,
-    private readonly usersService: UsersService
+    @Inject(forwardRef(() => PostsService))
+    private readonly postsService: PostsService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createProfileInput: CreateProfileInput, req: Request) : Promise<Profile> {
@@ -68,4 +72,7 @@ export class ProfilesService {
     })
   }
 
+  async getPostByProfile(profileId: string) : Promise<Post[]> {
+    return await this.postsService.getPostOnProfile(profileId);
+  }
 }

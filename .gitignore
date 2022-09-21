@@ -33,3 +33,7 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# CONFIG - GG CLOUD STORAGE
+instagram-363113-adc84c66b206.json
+instagram-363113-6e60c9d4d72f.json

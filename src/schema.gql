@@ -36,7 +36,7 @@ type Like {
 type Post {
   id: String!
   description: String
-  imageUrl: String
+  image: String
   createdAt: DateTime!
   updatedAt: DateTime!
   profileId: String!
@@ -144,12 +144,17 @@ input CreateProfileInput {
 
 input CreatePostInput {
   description: String
-  imageUrl: String
+  image: Upload!
+  image_url: String = null
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input UpdatePostInput {
   description: String!
-  imageUrl: String
+  image: Upload
+  image_url: String = null
   id: String!
 }
 

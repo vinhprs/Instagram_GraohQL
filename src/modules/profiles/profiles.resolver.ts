@@ -1,13 +1,14 @@
-import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent } from '@nestjs/graphql';
 import { ProfilesService } from './profiles.service';
 import { Profile } from './entities/profile.entity';
-import { UseGuards } from '@nestjs/common';
+import { HttpStatus, UseGuards } from '@nestjs/common';
 import { CreateProfileInput } from './dto/create-profile.input';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { NotFoundException } from '@nestjs/common/exceptions';
+import { Post } from '../../modules/posts/entities/post.entity';
 
-@Resolver("Profile")
+@Resolver(() => Profile)
 export class ProfilesResolver {
   constructor(private readonly profilesService: ProfilesService) {}
 
@@ -28,6 +29,16 @@ export class ProfilesResolver {
       return [];
     }
     return result;
+  }
+
+  @ResolveField(() => [Post])
+  async posts(@Parent() profiles: Profile) 
+  : Promise<Post []> {
+    try {
+      return this.profilesService.getPostByProfile(profiles.id);
+    } catch(err) {
+      throw new NotFoundException(err.message)
+    }
   }
   
   @Query(() => Profile)

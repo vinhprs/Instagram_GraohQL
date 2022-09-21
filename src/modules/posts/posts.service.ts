@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { getUserIdFromRequest } from '../../utils/jwt.utils';
 import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
@@ -12,25 +12,36 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { Comment } from '../comments/entities/comment.entity';
 import { CommentsService } from '../comments/comments.service';
 import { LikesService } from '../likes/likes.service';
-
+import { cloudinary_config } from '../../config/gg-cloud-storage.config';
 @Injectable()
 export class PostsService {
 
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    @Inject(forwardRef(() => ProfilesService))
     private readonly profilesService: ProfilesService,
     private readonly notificationsService: NotificationsService,
     private readonly commentsService: CommentsService,
     private readonly likesService: LikesService
   ) {} 
 
-  async create(createPostInput: CreatePostInput, req: Request) : Promise<Post> {
+  async create(createPostInput: CreatePostInput , req: Request) : Promise<Post> {
+
     const userId: string = getUserIdFromRequest(req);
     
-    const profile = await this.profilesService.getProfileByUser(userId);
+    const [profile, images] = await Promise.all([
+      this.profilesService.getProfileByUser(userId),
+      this.uploadFile(createPostInput)
+    ])
+    if(!images) {
+      throw new Error('Cannot upload file')
+    }
 
-    const post: Post = this.postRepository.create(createPostInput);
+    const post: Post = this.postRepository.create({
+      description: createPostInput.description,
+      image: images.img_url
+    });
     post.profileId = profile.id;
     post.createdAt = new Date(Date.now());
     post.updatedAt = new Date(Date.now());
@@ -38,6 +49,29 @@ export class PostsService {
     await this.notificationsService.createNotifications(userId);
     return await this.postRepository.save(post);
   }
+
+  async uploadFile(createPostInput: CreatePostInput) : Promise<any> {
+    const {filename, createReadStream} = await createPostInput.image;
+  
+    return new Promise(async (resolve, reject) => {
+      const upload_stream =  cloudinary_config.uploader.upload_stream(
+        {
+          folder: "instagram_graphQL"
+        },
+        (err, result) => {
+          if(result) {
+            resolve({
+              img_url: result.url
+            })
+          } else {
+            reject(err.message)
+          }
+        }
+      )
+      createReadStream()
+        .pipe(upload_stream)
+    })
+}
 
   async findAll() {
     return await this.postRepository.find();
@@ -79,5 +113,13 @@ export class PostsService {
 
   async getProfileOnPost(profileId: string) : Promise<Profile[]> {
     return await this.profilesService.getProfileByPost(profileId);
+  }
+
+  async getPostOnProfile(profileId: string) : Promise<Post[]> {
+    const result =  await this.postRepository.find({
+      where: { profileId }
+    })
+
+    return result;
   }
 }

@@ -15,9 +15,9 @@ export class Post {
   @Column({nullable: true, default: true})
   description?: string;
 
-  @Field({nullable: true, defaultValue: null})
+  @Field(() => String, {nullable: true, defaultValue: null})
   @Column({nullable: true, default: null})
-  imageUrl?: string;
+  image?: string;
 
   @Field()
   @Column({type: 'timestamp', nullable: true})
