@@ -53,6 +53,18 @@ export class AuthService {
     return token;
   }
 
+  async resendEmail(email: string) : Promise<boolean> {
+      const randomCode : string = randomOtp(6);
+      const done = await this.emailService.verifyEmail({
+        to: email,
+        from: "vinhnguyen19052002@gmail.com",
+        subject: "This is otp code to verify your account",
+        text: `Use the otp: ${randomCode} to active your account`
+      })
+      
+      return done;
+  }
+
   async setJwt(userId: string): Promise<JwtPayload> {
     const payload = {id: userId};
 

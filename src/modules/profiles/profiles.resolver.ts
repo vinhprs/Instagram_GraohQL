@@ -30,16 +30,6 @@ export class ProfilesResolver {
     }
     return result;
   }
-
-  @ResolveField(() => [Post])
-  async posts(@Parent() profiles: Profile) 
-  : Promise<Post []> {
-    try {
-      return this.profilesService.getPostByProfile(profiles.id);
-    } catch(err) {
-      throw new NotFoundException(err.message)
-    }
-  }
   
   @Query(() => Profile)
   @UseGuards(JwtAuthGuard)

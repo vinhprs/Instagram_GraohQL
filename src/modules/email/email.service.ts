@@ -9,7 +9,7 @@ export class EmailService {
     sgMail.setApiKey(sendGridAPIKey)
   }
 
-  async verifyEmail(msg: sgMail.MailDataRequired | sgMail.MailDataRequired[]) : Promise<Boolean> {
+  async verifyEmail(msg: sgMail.MailDataRequired | sgMail.MailDataRequired[]) : Promise<boolean> {
     try {
       await sgMail.send(msg)
       return true;

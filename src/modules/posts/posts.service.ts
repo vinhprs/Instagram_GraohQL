@@ -13,6 +13,7 @@ import { Comment } from '../comments/entities/comment.entity';
 import { CommentsService } from '../comments/comments.service';
 import { LikesService } from '../likes/likes.service';
 import { cloudinary_config } from '../../config/gg-cloud-storage.config';
+import { likeResult } from '../common/entities/common.entity';
 @Injectable()
 export class PostsService {
 
@@ -107,19 +108,11 @@ export class PostsService {
     return await this.commentsService.getCommentByPost(postId);
   }
 
-  async getLikeOnPost(postId: string) : Promise<number> {
+  async getLikeOnPost(postId: string) : Promise<likeResult> {
     return await this.likesService.getLikeByPost(postId);
   }
 
   async getProfileOnPost(profileId: string) : Promise<Profile[]> {
     return await this.profilesService.getProfileByPost(profileId);
-  }
-
-  async getPostOnProfile(profileId: string) : Promise<Post[]> {
-    const result =  await this.postRepository.find({
-      where: { profileId }
-    })
-
-    return result;
   }
 }

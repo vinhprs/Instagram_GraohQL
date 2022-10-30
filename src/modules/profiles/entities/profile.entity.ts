@@ -14,8 +14,8 @@ export class Profile {
   @Column()
   displayName: string;
 
-  @Field()
-  @Column()
+  @Field({nullable: true, defaultValue: null})
+  @Column({nullable: true, default: null})
   dob: String;
 
   @Field({nullable: true, defaultValue: null})

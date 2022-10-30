@@ -40,6 +40,17 @@ export class AuthResolver {
     }
   }
 
+  @Mutation(() => Boolean)
+  async resendEmail(
+    @Args("email") email: string 
+  ) : Promise<boolean> {
+    try {
+      return await this.authService.resendEmail(email);
+    } catch(error) {
+      throw new HttpException(error.message, error.status || HttpStatus.FORBIDDEN);
+    }
+  }
+
   @Mutation(() => JwtPayload) 
   async signup(
     @Args('signupUserInput') signupUserInput: SignupInput,

@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { Like } from "../../likes/entities/like.entity";
 import { User } from "../../users/entity/users.entity";
 
 @ObjectType()
@@ -23,4 +24,13 @@ export class JwtPayload {
 
     @Field(() => User, { nullable: true })
     userInfo: User;
+}
+
+@ObjectType()
+export class likeResult {
+    @Field(() => [Like] ,{nullable: true})
+    likes: Like [];
+
+    @Field({nullable: true})
+    count: number;
 }

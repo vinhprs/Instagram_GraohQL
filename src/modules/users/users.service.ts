@@ -7,12 +7,14 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { getUserIdFromRequest } from '../../utils/jwt.utils';
 import { Follow } from '../follows/entities/follow.entity';
+import { ProfilesService } from '../profiles/profiles.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly profilesService: ProfilesService
   ) {}
 
   async validateUserInput(loginUserInput: LoginUserInput): Promise<User> {
@@ -43,9 +45,9 @@ export class UsersService {
     await this.usersRepository.save(user);
     return user;
   }
-
+  
   async activeOtp(activeOtpInput: ActiveOtpInput) : Promise<boolean> {
-    const user = await this.findOneByEmail(activeOtpInput.email);
+    const user: User = await this.findOneByEmail(activeOtpInput.email);
     if(!user) {
       throw new NotFoundException("Your email does not match any!");
     }
@@ -58,7 +60,10 @@ export class UsersService {
       throw new NotFoundException("Incorrect otp code!");
     }
     user.isComfirmEmail = true;
-    await this.usersRepository.save(user);
+    await Promise.all([
+      this.usersRepository.save(user),
+      this.profilesService.autoCreateProfile(user)
+    ]) 
 
     return true;
   }

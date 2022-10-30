@@ -11,7 +11,7 @@ import { LikesModule } from '../likes/likes.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
-    forwardRef(() => ProfilesModule) ,
+    ProfilesModule,
     NotificationsModule,
     CommentsModule,
     LikesModule

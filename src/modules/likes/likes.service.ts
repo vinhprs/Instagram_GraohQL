@@ -4,6 +4,8 @@ import { Like } from './entities/like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { getUserIdFromRequest } from '../../utils/jwt.utils';
+import { likeResult } from '../common/entities/common.entity';
+import { User } from '../users/entity/users.entity';
 
 @Injectable()
 export class LikesService {
@@ -13,13 +15,21 @@ export class LikesService {
   ) {}
 
   async likePost(postId: string, req: Request) 
-  : Promise<Like> {
+  : Promise<boolean> {
     const userId: string = getUserIdFromRequest(req);
+
+    const liked = await this.likesRepository.findOne({
+      where: {userId, postId}
+    })
+
+    if(liked) {
+      return await this.unlikePost(postId, req);
+    }
 
     const like = this.likesRepository.create({postId});
     like.userId = userId;
 
-    return await this.likesRepository.save(like);
+    return await this.likesRepository.save(like) ? true: false;
   }
 
   async unlikePost(postId: string, req: Request) 
@@ -42,19 +52,31 @@ export class LikesService {
     return await this.likesRepository.save(like);
   }
 
-  async getLikeByPost(postId: string){
+  async getLikeByPost(postId: string): Promise<likeResult> {
     const condition = {
       postId
     }
     const [likes, count] = await Promise.all([
       this.likesRepository.find({
-        where: condition
+        where: condition,
+        relations: {user: true},
       }),
       this.likesRepository.count({
         where: condition
       })
     ])
-    return count;
+    return {
+      likes,
+      count
+    };
+  }
+
+  async getUserByLike(userId: string) : Promise<User> {
+    const getLike = await this.likesRepository.findOne({
+      where: {userId},
+      relations: {user: true}
+    })
+    return getLike.user;
   }
  
 }

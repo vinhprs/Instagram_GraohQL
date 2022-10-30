@@ -10,6 +10,13 @@ type Follow {
   following_users: [User!]
 }
 
+type Notification {
+  id: String!
+  conttent: String
+  userId: String
+  user: User
+}
+
 type Comment {
   id: String!
   userId: String
@@ -26,13 +33,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type Like {
-  id: String!
-  userId: String
-  postId: String
-  commentId: String
-}
-
 type Post {
   id: String!
   description: String
@@ -41,25 +41,16 @@ type Post {
   updatedAt: DateTime!
   profileId: String!
   comments: [Comment!]!
-  likes: Float!
+  likes: likeResult!
   profile: [Profile!]!
 }
 
-type Profile {
+type Like {
   id: String!
-  displayName: String!
-  dob: String!
-  bio: String
-  user: User
-  userId: String!
-  posts: [Post!]
-}
-
-type Notification {
-  id: String!
-  conttent: String
   userId: String
-  user: User
+  postId: String
+  commentId: String
+  user: User!
 }
 
 type User {
@@ -74,6 +65,16 @@ type User {
   following_users: [User!]!
 }
 
+type Profile {
+  id: String!
+  displayName: String!
+  dob: String
+  bio: String
+  user: User
+  userId: String!
+  posts: [Post!]
+}
+
 type IJwtPayload {
   id: String
 }
@@ -84,6 +85,11 @@ type JwtPayload {
   payload: JwtPayload
   userId: IJwtPayload
   userInfo: User
+}
+
+type likeResult {
+  likes: [Like!]
+  count: Float
 }
 
 type Query {
@@ -99,10 +105,11 @@ type Query {
 type Mutation {
   deactiveAccount: Boolean!
   activeAccount: Boolean!
+  createProfile(createProfileInput: CreateProfileInput!): Profile!
   login(loginUserInput: LoginUserInput!): JwtPayload!
   activeOtp(activeOtpInput: ActiveOtpInput!): Boolean!
+  resendEmail(email: String!): Boolean!
   signup(signupUserInput: SignupInput!): JwtPayload!
-  createProfile(createProfileInput: CreateProfileInput!): Profile!
   createPost(createPostInput: CreatePostInput!): Post!
   updatePost(updatePostInput: UpdatePostInput!): Post!
   deletePost(id: String!): Boolean!
@@ -112,9 +119,15 @@ type Mutation {
   replyComment(replyCommentInput: ReplyCommentInput!): Comment!
   updateComment(updateCommentInput: UpdateCommentInput!): Comment!
   deleteComment(id: String!): Boolean!
-  likePost(postId: String!): Like!
+  likePost(postId: String!): Boolean!
   unlikePost(postId: String!): Boolean!
   likeComment(commentId: String!): Like!
+}
+
+input CreateProfileInput {
+  displayName: String
+  dob: String
+  bio: String
 }
 
 input LoginUserInput {
@@ -133,12 +146,6 @@ input SignupInput {
   password: String!
   displayName: String
   DOB: DateTime
-  bio: String
-}
-
-input CreateProfileInput {
-  displayName: String!
-  dob: String!
   bio: String
 }
 

@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { Comment } from '../comments/entities/comment.entity';
 import { NotFoundException } from '@nestjs/common';
 import { Profile } from '../profiles/entities/profile.entity';
+import { likeResult } from '../common/entities/common.entity';
 
 @Resolver(() => Post)
 export class PostsResolver {
@@ -38,9 +39,9 @@ export class PostsResolver {
     }
   }
 
-  @ResolveField(() => Number)
+  @ResolveField(() => likeResult)
   async likes(@Parent() posts: Post)
-  : Promise<number> {
+  : Promise<likeResult> {
     try {
       return await this.postsService.getLikeOnPost(posts.id);
     } catch(err) {
